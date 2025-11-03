@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Herramienta Interactiva CASP - RCT</title>
+    <!-- Cargar Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Cargar jspdf y html2canvas para la generación de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* Estilo para los botones de radio personalizados */
+        .radio-label {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .radio-label:hover {
+            opacity: 0.8;
+        }
+
+        /* Ocultar el input de radio real */
+        input[type="radio"] {
+            display: none;
+        }
+
+        /* Estilos para las etiquetas cuando el radio está seleccionado */
+        input[type="radio"][value="si"]:checked + .radio-label {
+            background-color: #10B981; /* green-600 */
+            color: white;
+            border-color: #059669; /* green-700 */
+        }
+        
+        input[type="radio"][value="no"]:checked + .radio-label {
+            background-color: #EF4444; /* red-600 */
+            color: white;
+            border-color: #DC2626; /* red-700 */
+        }
+
+        input[type="radio"][value="no_se"]:checked + .radio-label {
+            background-color: #F59E0B; /* amber-500 */
+            color: white;
+            border-color: #D97706; /* amber-600 */
+        }
+
+        /* Estilos para el contenedor del reporte a imprimir */
+        #reporte-para-pdf {
+            display: none; /* Oculto por defecto */
+            width: 210mm; /* Ancho A4 */
+            padding: 20mm;
+            font-family: 'Arial', sans-serif;
+            color: #000;
+            background: #fff;
+        }
+        
+        #reporte-para-pdf h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        #reporte-para-pdf h2 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        #reporte-para-pdf .seccion-info p {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        #reporte-para-pdf .seccion-info p strong {
+            display: inline-block;
+            width: 120px;
+        }
+        
+        #reporte-para-pdf .seccion-pregunta {
+            font-size: 12px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background: #f9f9f9;
+            page-break-inside: avoid;
+        }
+        
+        #reporte-para-pdf .pregunta-texto {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        #reporte-para-pdf .respuesta-texto {
+            font-style: italic;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        #reporte-para-pdf .respuesta-si { color: #10B981; }
+        #reporte-para-pdf .respuesta-no { color: #EF4444; }
+        #reporte-para-pdf .respuesta-no_se { color: #D97706; }
+        
+        #reporte-para-pdf .comentarios-texto {
+            white-space: pre-wrap; /* Conserva saltos de línea y espacios */
+            background: #fff;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+
+        /* Estilo para el loader */
+        #loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9998;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        #loader div {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        #loader p {
+            color: white;
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800">
+
+    <!-- Loader -->
+    <div id="loader">
+        <div></div>
+        <p>Generando PDF, por favor espera...</p>
+    </div>
+
+    <!-- Contenedor principal -->
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+
+        <h1 class="text-3xl md:text-4xl font-bold text-center text-blue-800 mb-6">
+            Herramienta Interactiva de Lectura Crítica CASP
+        </h1>
+        <p class="text-center text-gray-600 mb-8">Basada en la lista de verificación de Ensayos Controlados Aleatorizados (RCTs) 2024.</p>
+
+        <!-- Sección de Información del Artículo -->
+        <div class="bg-white rounded-lg shadow-md mb-8 p-6">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2">Información del Artículo</h2>
+            <div id="info-articulo" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="reviewerName" class="block text-sm font-medium text-gray-600 mb-1">Nombre del Revisor:</label>
+                    <input type="text" id="reviewerName" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="appraisalDate" class="block text-sm font-medium text-gray-600 mb-1">Fecha de Revisión:</label>
+                    <input type="date" id="appraisalDate" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="md:col-span-2">
+                    <label for="paperTitle" class="block text-sm font-medium text-gray-600 mb-1">Título del Artículo (Paper):</label>
+                    <input type="text" id="paperTitle" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="md:col-span-2">
+                    <label for="author" class="block text-sm font-medium text-gray-600 mb-1">Autor(es):</label>
+                    <input type="text" id="author" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="md:col-span-2">
+                    <label for="webLink" class="block text-sm font-medium text-gray-600 mb-1">Enlace Web (URL):</label>
+                    <input type="text" id="webLink" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor de las preguntas -->
+        <div id="preguntas-container">
+            <!-- Las preguntas se generarán aquí con JavaScript -->
+        </div>
+
+        <!-- Sección de Resumen -->
+        <div class="bg-white rounded-lg shadow-md mb-8 p-6">
+            <h2 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2">Resumen de la Evaluación</h2>
+            <div class="space-y-4">
+                <div>
+                    <label for="summaryPositive" class="block text-base font-medium text-green-700 mb-1">Puntos Positivos / Metodología Sólida:</label>
+                    <textarea id="summaryPositive" rows="5" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"></textarea>
+                </div>
+                <div>
+                    <label for="summaryNegative" class="block text-base font-medium text-red-700 mb-1">Puntos Negativos / Metodología Pobre:</label>
+                    <textarea id="summaryNegative" rows="5" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500"></textarea>
+                </div>
+                <div>
+                    <label for="summaryUnknown" class="block text-base font-medium text-yellow-700 mb-1">Incógnitas / Puntos no claros:</label>
+                    <textarea id="summaryUnknown" rows="5" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón de Generar PDF -->
+        <div class="text-center">
+            <button id="generar-pdf" class="w-full md:w-auto px-8 py-4 bg-blue-700 text-white text-lg font-bold rounded-lg shadow-lg hover:bg-blue-800 transition-all duration-200">
+                Generar Reporte PDF de la Revisión
+            </button>
+        </div>
+    </div>
+
+    <!-- Elemento oculto para generar el PDF -->
+    <div id="reporte-para-pdf">
+        <!-- El contenido se generará aquí con JavaScript -->
+    </div>
+
+
+    <script>
+        // Definición de las preguntas basadas en el PDF de CASP RCT
+        const secciones = [
+            {
+                titulo: "Sección A: ¿Es válido el diseño básico del estudio para un ensayo controlado aleatorizado?",
+                preguntas: [
+                    {
+                        id: 'q1',
+                        texto: '1. ¿El estudio abordó una pregunta de investigación claramente formulada?',
+                        hints: [
+                            '¿El estudio fue diseñado para evaluar los resultados de una intervención?',
+                            '¿La pregunta de investigación está "formulada" en términos de:',
+                            '• Población estudiada',
+                            '• Intervención administrada',
+                            '• Comparador elegido',
+                            '• Resultados medidos?'
+                        ]
+                    },
+                    {
+                        id: 'q2',
+                        texto: '2. ¿Fue aleatoria la asignación de los participantes a las intervenciones?',
+                        hints: [
+                            '¿Cómo se llevó a cabo la aleatorización? ¿Fue el método apropiado?',
+                            '¿Fue la aleatorización suficiente para eliminar sesgos sistemáticos?',
+                            '¿Se ocultó la secuencia de asignación a los investigadores y participantes?'
+                        ]
+                    },
+                    {
+                        id: 'q3',
+                        texto: '3. ¿Se tuvieron en cuenta todos los participantes que entraron en el estudio al finalizar?',
+                        hints: [
+                            '¿Se tuvieron en cuenta las pérdidas durante el seguimiento y las exclusiones después de la aleatorización?',
+                            '¿Se analizaron los participantes en los grupos de estudio a los que fueron aleatorizados (análisis por intención de tratar)?',
+                            '¿Se detuvo el estudio antes de tiempo? Si es así, ¿cuál fue la razón?'
+                        ]
+                    }
+                ]
+            },
+            {
+                titulo: "Sección B: ¿Fue el estudio metodológicamente sólido?",
+                preguntas: [
+                    {
+                        id: 'q4a',
+                        texto: '4(a). ¿Estaban los participantes "ciegos" a la intervención que se les dio?',
+                        hints: []
+                    },
+                    {
+                        id: 'q4b',
+                        texto: '4(b). ¿Estaban los investigadores "ciegos" a la intervención que estaban dando a los participantes?',
+                        hints: []
+                    },
+                    {
+                        id: 'q4c',
+                        texto: '4(c). ¿Estaban "ciegas" las personas que evaluaban/analizaban los resultados?',
+                        hints: []
+                    },
+                    {
+                        id: 'q5',
+                        texto: '5. ¿Fueron similares los grupos de estudio al inicio del ensayo controlado aleatorizado?',
+                        hints: [
+                            '¿Se expusieron claramente las características basales de cada grupo de estudio (p. ej., edad, sexo, grupo socioeconómico)?',
+                            '¿Hubo alguna diferencia entre los grupos de estudio que pudiera afectar el/los resultado/s?'
+                        ]
+                    },
+                    {
+                        id: 'q6',
+                        texto: '6. Aparte de la intervención experimental, ¿recibió cada grupo de estudio el mismo nivel de atención (es decir, fueron tratados por igual)?',
+                        hints: [
+                            '¿Hubo un protocolo de estudio claramente definido?',
+                            'Si se administraron intervenciones adicionales (p. ej., pruebas o tratamientos), ¿fueron similares entre los grupos de estudio?',
+                            '¿Fueron iguales los intervalos de seguimiento para cada grupo de estudio?'
+                        ]
+                    }
+                ]
+            },
+            {
+                titulo: "Sección C: ¿Cuáles son los resultados?",
+                preguntas: [
+                    {
+                        id: 'q7',
+                        texto: '7. ¿Se informaron de manera exhaustiva los efectos de la intervención?',
+                        hints: [
+                            '¿Se realizó un cálculo de potencia?',
+                            '¿Qué resultados se midieron y se especificaron claramente?',
+                            '¿Cómo se expresaron los resultados? Para resultados binarios, ¿se informaron los efectos relativos y absolutos?',
+                            '¿Se informaron los resultados para cada resultado en cada grupo de estudio en cada intervalo de seguimiento?',
+                            '¿Hubo datos faltantes o incompletos?',
+                            '¿Hubo un abandono diferencial entre los grupos de estudio que pudiera afectar los resultados?',
+                            '¿Se identificaron posibles fuentes de sesgo?',
+                            '¿Qué pruebas estadísticas se utilizaron?',
+                            '¿Se informaron los valores p?'
+                        ]
+                    },
+                    {
+                        id: 'q8',
+                        texto: '8. ¿Se informó la precisión de la estimación de la intervención o el efecto del tratamiento?',
+                        hints: [
+                            '¿Se informaron los intervalos de confianza (IC)?'
+                        ]
+                    },
+                    {
+                        id: 'q9',
+                        texto: '9. ¿Superan los beneficios de la intervención experimental los daños y costos?',
+                        hints: [
+                            '¿Cuál fue el tamaño del efecto de la intervención o tratamiento?',
+                            '¿Se informaron daños o efectos no deseados para cada grupo de estudio?',
+                            '¿Se realizó un análisis de costo-efectividad? (El análisis de costo-efectividad permite comparar diferentes intervenciones utilizadas en el cuidado de la misma condición o problema).'
+                        ]
+                    }
+                ]
+            },
+            {
+                titulo: "Sección D: ¿Ayudarán los resultados localmente?",
+                preguntas: [
+                    {
+                        id: 'q10',
+                        texto: '10. ¿Se pueden aplicar los resultados a su población local/en su contexto?',
+                        hints: [
+                            '¿Son los participantes del estudio similares a las personas bajo su cuidado?',
+                            '¿Alguna diferencia entre su población y los participantes del estudio alteraría los resultados informados en el estudio?',
+                            '¿Son los resultados importantes para su población?',
+                            '¿Hay algún resultado sobre el que le hubiera gustado tener información que no se haya estudiado o informado?',
+                            '¿Existen limitaciones del estudio que afectarían su decisión?'
+                        ]
+                    },
+                    {
+                        id: 'q11',
+                        texto: '11. ¿Proporcionaría la intervención experimental un mayor valor a las personas bajo su cuidado que cualquiera de las intervenciones existentes?',
+                        hints: [
+                            '¿Qué recursos se necesitan para introducir esta intervención teniendo en cuenta el tiempo, las finanzas y el desarrollo de habilidades o las necesidades de capacitación?',
+                            '¿Puede desinvertir recursos en una o más intervenciones existentes para poder reinvertir en la nueva intervención?'
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // Objeto para almacenar todas las respuestas
+        const appData = {
+            info: {},
+            respuestas: {},
+            resumen: {}
+        };
+
+        // Función para generar las preguntas en el HTML
+        function renderizarPreguntas() {
+            const container = document.getElementById('preguntas-container');
+            
+            secciones.forEach(seccion => {
+                // Crear contenedor de sección
+                const seccionDiv = document.createElement('div');
+                seccionDiv.className = 'bg-white rounded-lg shadow-md mb-8 p-6';
+                
+                // Título de la sección
+                const seccionTitulo = document.createElement('h2');
+                seccionTitulo.className = 'text-2xl font-bold text-gray-700 mb-6 border-b pb-2';
+                seccionTitulo.textContent = seccion.titulo;
+                seccionDiv.appendChild(seccionTitulo);
+
+                // Contenedor de preguntas para esta sección
+                const preguntasDiv = document.createElement('div');
+                preguntasDiv.className = 'space-y-8';
+
+                seccion.preguntas.forEach(pregunta => {
+                    // Inicializar el objeto de respuesta
+                    appData.respuestas[pregunta.id] = {
+                        texto: pregunta.texto,
+                        respuesta: null,
+                        comentarios: ''
+                    };
+
+                    // Contenedor de una pregunta
+                    const item = document.createElement('div');
+                    item.className = 'pregunta-item border-t pt-6';
+                    
+                    // Texto de la pregunta
+                    const pTexto = document.createElement('p');
+                    pTexto.className = 'text-lg font-semibold text-gray-800 mb-3';
+                    pTexto.textContent = pregunta.texto;
+                    item.appendChild(pTexto);
+
+                    // Pistas (Hints)
+                    if (pregunta.hints.length > 0) {
+                        const hintsDiv = document.createElement('div');
+                        hintsDiv.className = 'text-sm text-gray-600 bg-gray-50 p-3 rounded-md mb-4 border border-gray-200';
+                        const hintsTitle = document.createElement('strong');
+                        hintsTitle.textContent = 'CONSIDERAR:';
+                        hintsDiv.appendChild(hintsTitle);
+                        
+                        const hintsList = document.createElement('ul');
+                        hintsList.className = 'list-disc list-inside ml-2 mt-1 space-y-1';
+                        pregunta.hints.forEach(hint => {
+                            const li = document.createElement('li');
+                            li.textContent = hint;
+                            hintsList.appendChild(li);
+                        });
+                        hintsDiv.appendChild(hintsList);
+                        item.appendChild(hintsDiv);
+                    }
+
+                    // Botones de respuesta
+                    const botonesDiv = document.createElement('div');
+                    botonesDiv.className = 'flex flex-wrap gap-2 mb-4';
+                    
+                    const opciones = [
+                        { value: 'si', label: 'Sí' },
+                        { value: 'no', label: 'No' },
+                        { value: 'no_se', label: 'No sé' }
+                    ];
+
+                    opciones.forEach(opcion => {
+                        const radio = document.createElement('input');
+                        radio.type = 'radio';
+                        radio.id = `${pregunta.id}_${opcion.value}`;
+                        radio.name = pregunta.id;
+                        radio.value = opcion.value;
+                        radio.addEventListener('change', (e) => {
+                            appData.respuestas[pregunta.id].respuesta = e.target.value;
+                        });
+
+                        const label = document.createElement('label');
+                        label.htmlFor = radio.id;
+                        label.textContent = opcion.label;
+                        label.className = 'radio-label px-5 py-2 rounded-md cursor-pointer border-2 border-gray-300 bg-gray-100 text-gray-700 font-medium';
+
+                        botonesDiv.appendChild(radio);
+                        botonesDiv.appendChild(label);
+                    });
+                    item.appendChild(botonesDiv);
+
+                    // Área de comentarios
+                    const comentariosLabel = document.createElement('label');
+                    comentariosLabel.htmlFor = `comments_${pregunta.id}`;
+                    comentariosLabel.className = 'block text-sm font-medium text-gray-600 mb-1';
+                    comentariosLabel.textContent = 'Comentarios (Cuadro de diálogo):';
+                    item.appendChild(comentariosLabel);
+                    
+                    const textarea = document.createElement('textarea');
+                    textarea.id = `comments_${pregunta.id}`;
+                    textarea.rows = '4';
+                    textarea.className = 'w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500';
+                    textarea.placeholder = 'Añada sus notas y justificaciones aquí...';
+                    textarea.addEventListener('input', (e) => {
+                        appData.respuestas[pregunta.id].comentarios = e.target.value;
+                    });
+                    item.appendChild(textarea);
+
+                    preguntasDiv.appendChild(item);
+                });
+
+                seccionDiv.appendChild(preguntasDiv);
+                container.appendChild(seccionDiv);
+            });
+        }
+
+        // Función para actualizar los datos de info y resumen en appData
+        function actualizarDatosGenerales() {
+            // Info Artículo
+            appData.info.reviewerName = document.getElementById('reviewerName').value;
+            appData.info.appraisalDate = document.getElementById('appraisalDate').value;
+            appData.info.paperTitle = document.getElementById('paperTitle').value;
+            appData.info.author = document.getElementById('author').value;
+            appData.info.webLink = document.getElementById('webLink').value;
+            
+            // Resumen
+            appData.resumen.positive = document.getElementById('summaryPositive').value;
+            appData.resumen.negative = document.getElementById('summaryNegative').value;
+            appData.resumen.unknown = document.getElementById('summaryUnknown').value;
+        }
+
+        // Event Listeners para los campos generales
+        function agregarListenersGenerales() {
+            document.getElementById('reviewerName').addEventListener('input', actualizarDatosGenerales);
+            document.getElementById('appraisalDate').addEventListener('input', actualizarDatosGenerales);
+            document.getElementById('paperTitle').addEventListener('input', actualizarDatosGenerales);
+            document.getElementById('author').addEventListener('input', actualizarDatosGenerales);
+            document.getElementById('webLink').addEventListener('input', actualizarDatosGenerales);
+            document.getElementById('summaryPositive').addEventListener('input', actualizarDatosGenerales);
+            document.getElementById('summaryNegative').addEventListener('input', actualizarDatosGenerales);
+            document.getElementById('summaryUnknown').addEventListener('input', actualizarDatosGenerales);
+        }
+
+        // Función para generar el contenido del PDF
+        function prepararContenidoPDF() {
+            actualizarDatosGenerales(); // Asegurarse de que los últimos datos están capturados
+            const container = document.getElementById('reporte-para-pdf');
+            container.innerHTML = ''; // Limpiar contenido anterior
+
+            // Título del Reporte
+            const h1 = document.createElement('h1');
+            h1.textContent = 'Reporte de Lectura Crítica CASP (RCT)';
+            container.appendChild(h1);
+
+            // Sección de Información del Artículo
+            const h2Info = document.createElement('h2');
+            h2Info.textContent = 'Información del Artículo';
+            container.appendChild(h2Info);
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'seccion-info';
+            infoDiv.innerHTML = `
+                <p><strong>Título:</strong> ${appData.info.paperTitle || 'No especificado'}</p>
+                <p><strong>Autor(es):</strong> ${appData.info.author || 'No especificado'}</p>
+                <p><strong>Enlace:</strong> ${appData.info.webLink || 'No especificado'}</p>
+                <p><strong>Revisor:</strong> ${appData.info.reviewerName || 'No especificado'}</p>
+                <p><strong>Fecha:</strong> ${appData.info.appraisalDate || 'No especificada'}</p>
+            `;
+            container.appendChild(infoDiv);
+
+            // Secciones y Preguntas
+            secciones.forEach(seccion => {
+                const h2Seccion = document.createElement('h2');
+                h2Seccion.textContent = seccion.titulo;
+                container.appendChild(h2Seccion);
+
+                seccion.preguntas.forEach(pregunta => {
+                    const data = appData.respuestas[pregunta.id];
+                    const preguntaDiv = document.createElement('div');
+                    preguntaDiv.className = 'seccion-pregunta';
+
+                    const pTexto = document.createElement('p');
+                    pTexto.className = 'pregunta-texto';
+                    pTexto.textContent = data.texto;
+                    preguntaDiv.appendChild(pTexto);
+
+                    let respuestaLabel = 'No respondido';
+                    let respuestaClass = '';
+                    if (data.respuesta === 'si') {
+                        respuestaLabel = 'Respuesta: Sí';
+                        respuestaClass = 'respuesta-si';
+                    } else if (data.respuesta === 'no') {
+                        respuestaLabel = 'Respuesta: No';
+                        respuestaClass = 'respuesta-no';
+                    } else if (data.respuesta === 'no_se') {
+                        respuestaLabel = 'Respuesta: No sé';
+                        respuestaClass = 'respuesta-no_se';
+                    }
+
+                    const pRespuesta = document.createElement('p');
+                    pRespuesta.className = `respuesta-texto ${respuestaClass}`;
+                    pRespuesta.textContent = respuestaLabel;
+                    preguntaDiv.appendChild(pRespuesta);
+
+                    const pComentariosLabel = document.createElement('p');
+                    pComentariosLabel.textContent = 'Comentarios:';
+                    preguntaDiv.appendChild(pComentariosLabel);
+
+                    const pComentarios = document.createElement('pre');
+                    pComentarios.className = 'comentarios-texto';
+                    pComentarios.textContent = data.comentarios || '(Sin comentarios)';
+                    preguntaDiv.appendChild(pComentarios);
+
+                    container.appendChild(preguntaDiv);
+                });
+            });
+            
+            // Sección de Resumen
+            const h2Resumen = document.createElement('h2');
+            h2Resumen.textContent = 'Resumen de la Evaluación';
+            container.appendChild(h2Resumen);
+
+            const resumenDiv = document.createElement('div');
+            resumenDiv.innerHTML = `
+                <div class="seccion-pregunta">
+                    <p class="pregunta-texto">Puntos Positivos / Metodología Sólida:</p>
+                    <pre class="comentarios-texto">${appData.resumen.positive || '(Sin comentarios)'}</pre>
+                </div>
+                <div class="seccion-pregunta">
+                    <p class="pregunta-texto">Puntos Negativos / Metodología Pobre:</p>
+                    <pre class="comentarios-texto">${appData.resumen.negative || '(Sin comentarios)'}</pre>
+                </div>
+                <div class="seccion-pregunta">
+                    <p class="pregunta-texto">Incógnitas / Puntos no claros:</p>
+                    <pre class="comentarios-texto">${appData.resumen.unknown || '(Sin comentarios)'}</pre>
+                </div>
+            `;
+            container.appendChild(resumenDiv);
+        }
+
+        // Función para manejar el clic en "Generar PDF"
+        async function generarPDF() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'flex'; // Mostrar loader
+            
+            prepararContenidoPDF();
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const content = document.getElementById('reporte-para-pdf');
+            content.style.display = 'block'; // Mostrar temporalmente para que html2canvas lo capture
+
+            try {
+                const canvas = await html2canvas(content, {
+                    scale: 2, // Aumentar la escala para mejor calidad
+                    useCORS: true,
+                    windowWidth: content.scrollWidth,
+                    windowHeight: content.scrollHeight
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+                let heightLeft = pdfHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                heightLeft -= pdf.internal.pageSize.getHeight();
+
+                while (heightLeft > 0) {
+                    position = heightLeft - pdfHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    heightLeft -= pdf.internal.pageSize.getHeight();
+                }
+
+                // Generar un nombre de archivo
+                const paperTitle = appData.info.paperTitle || 'articulo';
+                const safeTitle = paperTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 30);
+                pdf.save(`reporte_casp_${safeTitle}.pdf`);
+
+            } catch (error) {
+                console.error("Error al generar el PDF:", error);
+                alert("Hubo un error al generar el PDF. Por favor, revisa la consola para más detalles.");
+            } finally {
+                content.style.display = 'none'; // Ocultar de nuevo
+                loader.style.display = 'none'; // Ocultar loader
+            }
+        }
+
+        // Iniciar la aplicación
+        document.addEventListener('DOMContentLoaded', () => {
+            renderizarPreguntas();
+            agregarListenersGenerales();
+            document.getElementById('generar-pdf').addEventListener('click', generarPDF);
+        });
+
+    </script>
+</body>
+</html>
