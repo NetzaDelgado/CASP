@@ -267,12 +267,38 @@
             </div>
 
             <!-- Pie de página de atribución -->
+            <!-- [ELIMINADO]
             <footer class="text-center text-xs text-gray-500 mt-12 mb-4">
                 <p>Esta herramienta está basada en el trabajo de CASP - Critical Appraisal Skills Programme (2024).</p>
                 <p>Aplicación Web por Netzahualpilli Delgado Figueroa.</p>
             </footer>
-        </div>
-    </div>
+            -->
+        </div> <!-- Cierre de #app-container -->
+
+        <!-- NUEVO PIE DE PÁGINA PRINCIPAL -->
+        <footer class="text-center text-xs text-gray-500 mt-12 mb-4">
+            <!-- Leyenda de uso personal -->
+            <p class="mb-2 text-sm text-gray-700 font-medium">Uso personal de la herramienta</p>
+
+            <!-- Contadores -->
+            <div class="flex justify-center gap-6 mb-4 text-sm">
+                <span>Visitas: <strong id="visit-count" class="font-bold text-gray-700">0</strong></span>
+                <span>Reportes Generados: <strong id="pdf-count" class="font-bold text-gray-700">0</strong></span>
+            </div>
+            
+            <!-- Atribución de Código Abierto -->
+            <p class="mb-2 text-gray-600">
+                Esta es una herramienta de acceso abierto y código abierto desarrollada por Netzahualpilli Delgado Figueroa.
+            </p>
+            <p class="mb-4 text-gray-600">
+                Si quieres saludar o invitarme un café: <a href="https://x.com/NetzaDelgado" target="_blank" class="text-blue-600 hover:underline">@NetzaDelgado en X</a>.
+            </p>
+            
+            <!-- Atribución CASP -->
+            <p>Esta herramienta está basada en el trabajo de CASP - Critical Appraisal Skills Programme (2024).</p>
+        </footer>
+
+    </div> <!-- Cierre de div.max-w-4xl.mx-auto -->
 
     <!-- Elemento oculto para generar el PDF -->
     <div id="reporte-para-pdf">
@@ -533,6 +559,58 @@
         };
         let currentChecklistType = null;
         let currentChecklistTitle = '';
+
+        // --- NUEVA SECCIÓN DE CONTADORES ---
+        /**
+         * Carga los contadores al iniciar la página.
+         * Incrementa el contador de visitas.
+         */
+        function cargarContadores() {
+            // Cargar y actualizar contador de visitas
+            let visitCount = 0;
+            try {
+                const storedVisits = localStorage.getItem('caspVisitCount');
+                visitCount = storedVisits ? (parseInt(storedVisits, 10) || 0) : 0;
+                visitCount++; // Incrementar la visita
+                localStorage.setItem('caspVisitCount', visitCount.toString());
+                
+                const visitElement = document.getElementById('visit-count');
+                if (visitElement) visitElement.textContent = visitCount.toString();
+            } catch (e) {
+                console.warn("Error al actualizar contador de visitas:", e);
+            }
+            
+            // Solo cargar (no incrementar) contador de PDF
+            try {
+                const storedPdfs = localStorage.getItem('caspPdfCount');
+                const pdfCount = storedPdfs ? (parseInt(storedPdfs, 10) || 0) : 0;
+                const pdfElement = document.getElementById('pdf-count');
+                if (pdfElement) pdfElement.textContent = pdfCount.toString();
+            } catch (e) {
+                console.warn("Error al cargar contador de PDF:", e);
+            }
+        }
+        
+        /**
+         * Incrementa el contador de PDF.
+         */
+        function incrementarContadorPDF() {
+                try {
+                let pdfCount = 0;
+                const storedPdfs = localStorage.getItem('caspPdfCount');
+                pdfCount = storedPdfs ? (parseInt(storedPdfs, 10) || 0) : 0;
+                pdfCount++; // Incrementar PDF
+                localStorage.setItem('caspPdfCount', pdfCount.toString());
+
+                const pdfElement = document.getElementById('pdf-count');
+                if (pdfElement) pdfElement.textContent = pdfCount.toString();
+            } catch (e) {
+                console.warn("Error al actualizar contador de PDF:", e);
+            }
+        }
+
+        // --- FIN DE NUEVA SECCIÓN DE CONTADORES ---
+
 
         // --- FUNCIONES PRINCIPALES ---
 
@@ -871,6 +949,10 @@
                 const safeTitle = paperTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 30);
                 pdf.save(`reporte_casp_${currentChecklistType}_${safeTitle}.pdf`);
 
+                // --- NUEVA LÍNEA ---
+                incrementarContadorPDF(); // Incrementar el contador de PDF
+                // --- FIN DE NUEVA LÍNEA ---
+
             } catch (error) {
                 console.error("Error al generar el PDF:", error);
                 alert("Hubo un error al generar el PDF. Por favor, revisa la consola para más detalles.");
@@ -882,6 +964,10 @@
 
         // --- INICIAR LA APLICACIÓN ---
         document.addEventListener('DOMContentLoaded', () => {
+            // --- NUEVA LÍNEA ---
+            cargarContadores(); // Cargar y actualizar contadores al inicio
+            // --- FIN DE NUEVA LÍNEA ---
+
             // Listeners para los botones de selección
             document.querySelectorAll('.checklist-button').forEach(button => {
                 button.addEventListener('click', () => {
