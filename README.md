@@ -21,3 +21,6 @@ La primera semana internacional de capacitación de CASP se llevó a cabo en Lon
 No existe un grupo central que regule las actividades de los miembros de la Red Internacional CASP. Cada uno es una entidad autónoma y cada uno colabora con los demás.
 
 Más información en: [https://casp-uk.net/](https://casp-uk.net/)
+
+# Web app
+Este proyecto representa un esfuerzo por mejorar los Journal Club y es parte de los proyectos personales y colectivos de [Netzahualpilli Delgado Figueroa](https://github.com/NetzaDelgado/)
