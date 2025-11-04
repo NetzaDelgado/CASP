@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Herramienta Interactiva CASP - RCT</title>
+    <title>Herramienta Interactiva CASP - Multilista</title>
     <!-- Cargar Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Cargar jspdf y html2canvas para la generación de PDF -->
@@ -55,7 +54,7 @@
         }
         
         #reporte-para-pdf h1 {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #333;
             border-bottom: 2px solid #ccc;
@@ -64,10 +63,10 @@
         }
         
         #reporte-para-pdf h2 {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #555;
-            margin-top: 20px;
+            margin-top: 15px;
             margin-bottom: 10px;
         }
         
@@ -163,75 +162,116 @@
     <!-- Contenedor principal -->
     <div class="max-w-4xl mx-auto p-4 md:p-8">
 
-        <h1 class="text-3xl md:text-4xl font-bold text-center text-blue-800 mb-6">
-            Herramienta Interactiva de Lectura Crítica CASP
-        </h1>
-        <p class="text-center text-gray-600 mb-8">Basada en la lista de verificación de Ensayos Controlados Aleatorizados (RCTs) 2024.</p>
-
-        <!-- Sección de Información del Artículo -->
-        <div class="bg-white rounded-lg shadow-md mb-8 p-6">
-            <h2 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2">Información del Artículo</h2>
-            <div id="info-articulo" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label for="reviewerName" class="block text-sm font-medium text-gray-600 mb-1">Nombre del Revisor:</label>
-                    <input type="text" id="reviewerName" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label for="appraisalDate" class="block text-sm font-medium text-gray-600 mb-1">Fecha de Revisión:</label>
-                    <input type="date" id="appraisalDate" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="md:col-span-2">
-                    <label for="paperTitle" class="block text-sm font-medium text-gray-600 mb-1">Título del Artículo (Paper):</label>
-                    <input type="text" id="paperTitle" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="md:col-span-2">
-                    <label for="author" class="block text-sm font-medium text-gray-600 mb-1">Autor(es):</label>
-                    <input type="text" id="author" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="md:col-span-2">
-                    <label for="webLink" class="block text-sm font-medium text-gray-600 mb-1">Enlace Web (URL):</label>
-                    <input type="text" id="webLink" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                </div>
+        <!-- Pantalla de Selección -->
+        <div id="seleccion-checklist">
+            <h1 class="text-3xl md:text-4xl font-bold text-center text-blue-800 mb-6">
+                Herramienta Interactiva de Lectura Crítica CASP
+            </h1>
+            <p class="text-center text-gray-600 mb-8">Por favor, selecciona el tipo de estudio que deseas evaluar:</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button id="select-rct" data-tipo="rct" class="checklist-button text-left p-4 bg-white rounded-lg shadow-md hover:shadow-lg hover:bg-blue-50 transition-all duration-200 border-l-4 border-blue-600">
+                    <h2 class="text-xl font-bold text-blue-800">Ensayo Controlado Aleatorizado (RCT)</h2>
+                    <p class="text-sm text-gray-600 mt-1">Checklist para evaluar ensayos controlados aleatorizados.</p>
+                </button>
+                <button id="select-sys-review-rct" data-tipo="sysReviewRCT" class="checklist-button text-left p-4 bg-white rounded-lg shadow-md hover:shadow-lg hover:bg-green-50 transition-all duration-200 border-l-4 border-green-600">
+                    <h2 class="text-xl font-bold text-green-800">Revisión Sistemática (de RCTs)</h2>
+                    <p class="text-sm text-gray-600 mt-1">Checklist para Revisiones Sistemáticas y Meta-análisis de RCTs.</p>
+                </button>
+                <button id="select-sys-review-obs" data-tipo="sysReviewObs" class="checklist-button text-left p-4 bg-white rounded-lg shadow-md hover:shadow-lg hover:bg-green-50 transition-all duration-200 border-l-4 border-green-600">
+                    <h2 class="text-xl font-bold text-green-800">Revisión Sistemática (Observacional)</h2>
+                    <p class="text-sm text-gray-600 mt-1">Checklist para Revisiones Sistemáticas de estudios observacionales.</p>
+                </button>
+                <button id="select-cohort" data-tipo="cohort" class="checklist-button text-left p-4 bg-white rounded-lg shadow-md hover:shadow-lg hover:bg-yellow-50 transition-all duration-200 border-l-4 border-yellow-600">
+                    <h2 class="text-xl font-bold text-yellow-800">Estudio de Cohortes</h2>
+                    <p class="text-sm text-gray-600 mt-1">Checklist para evaluar estudios de cohortes.</p>
+                </button>
+                <button id="select-case-control" data-tipo="caseControl" class="checklist-button text-left p-4 bg-white rounded-lg shadow-md hover:shadow-lg hover:bg-purple-50 transition-all duration-200 border-l-4 border-purple-600">
+                    <h2 class="text-xl font-bold text-purple-800">Estudio de Casos y Controles</h2>
+                    <p class="text-sm text-gray-600 mt-1">Checklist para evaluar estudios de casos y controles.</p>
+                </button>
+                <button id="select-cross-sectional" data-tipo="crossSectional" class="checklist-button text-left p-4 bg-white rounded-lg shadow-md hover:shadow-lg hover:bg-red-50 transition-all duration-200 border-l-4 border-red-600">
+                    <h2 class="text-xl font-bold text-red-800">Estudio Transversal / Descriptivo</h2>
+                    <p class="text-sm text-gray-600 mt-1">Checklist para evaluar estudios transversales o descriptivos.</p>
+                </button>
             </div>
         </div>
 
-        <!-- Contenedor de las preguntas -->
-        <div id="preguntas-container">
-            <!-- Las preguntas se generarán aquí con JavaScript -->
-        </div>
-
-        <!-- Sección de Resumen -->
-        <div class="bg-white rounded-lg shadow-md mb-8 p-6">
-            <h2 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2">Resumen de la Evaluación</h2>
-            <div class="space-y-4">
-                <div>
-                    <label for="summaryPositive" class="block text-base font-medium text-green-700 mb-1">Puntos Positivos / Metodología Sólida:</label>
-                    <textarea id="summaryPositive" rows="5" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"></textarea>
-                </div>
-                <div>
-                    <label for="summaryNegative" class="block text-base font-medium text-red-700 mb-1">Puntos Negativos / Metodología Pobre:</label>
-                    <textarea id="summaryNegative" rows="5" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500"></textarea>
-                </div>
-                <div>
-                    <label for="summaryUnknown" class="block text-base font-medium text-yellow-700 mb-1">Incógnitas / Puntos no claros:</label>
-                    <textarea id="summaryUnknown" rows="5" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500"></textarea>
-                </div>
-            </div>
-        </div>
-
-        <!-- Botón de Generar PDF -->
-        <div class="text-center">
-            <button id="generar-pdf" class="w-full md:w-auto px-8 py-4 bg-blue-700 text-white text-lg font-bold rounded-lg shadow-lg hover:bg-blue-800 transition-all duration-200">
-                Generar Reporte PDF de la Revisión
+        <!-- Contenedor de la App (inicialmente oculto) -->
+        <div id="app-container" style="display: none;">
+            <button id="btn-volver" class="mb-4 px-4 py-2 bg-gray-600 text-white text-sm font-medium rounded-md hover:bg-gray-700 transition-all">
+                &larr; Volver a la selección
             </button>
+            
+            <h1 class="text-3xl md:text-4xl font-bold text-center text-blue-800 mb-2">
+                Herramienta Interactiva de Lectura Crítica CASP
+            </h1>
+            <p id="app-subtitle" class="text-center text-gray-600 text-lg mb-8">Checklist: </p>
+
+            <!-- Sección de Información del Artículo -->
+            <div class="bg-white rounded-lg shadow-md mb-8 p-6">
+                <h2 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2">Información del Artículo</h2>
+                <div id="info-articulo" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="reviewerName" class="block text-sm font-medium text-gray-600 mb-1">Nombre del Revisor:</label>
+                        <input type="text" id="reviewerName" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="appraisalDate" class="block text-sm font-medium text-gray-600 mb-1">Fecha de Revisión:</label>
+                        <input type="date" id="appraisalDate" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="paperTitle" class="block text-sm font-medium text-gray-600 mb-1">Título del Artículo (Paper):</label>
+                        <input type="text" id="paperTitle" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="author" class="block text-sm font-medium text-gray-600 mb-1">Autor(es):</label>
+                        <input type="text" id="author" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="webLink" class="block text-sm font-medium text-gray-600 mb-1">Enlace Web (URL):</label>
+                        <input type="text" id="webLink" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenedor de las preguntas -->
+            <div id="preguntas-container">
+                <!-- Las preguntas se generarán aquí con JavaScript -->
+            </div>
+
+            <!-- Sección de Resumen -->
+            <div class="bg-white rounded-lg shadow-md mb-8 p-6">
+                <h2 class="text-2xl font-bold text-gray-700 mb-4 border-b pb-2">Resumen de la Evaluación</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="summaryPositive" class="block text-base font-medium text-green-700 mb-1">Puntos Positivos / Metodología Sólida:</label>
+                        <textarea id="summaryPositive" rows="5" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500"></textarea>
+                    </div>
+                    <div>
+                        <label for="summaryNegative" class="block text-base font-medium text-red-700 mb-1">Puntos Negativos / Metodología Pobre:</label>
+                        <textarea id="summaryNegative" rows="5" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500"></textarea>
+                    </div>
+                    <div>
+                        <label for="summaryUnknown" class="block text-base font-medium text-yellow-700 mb-1">Incógnitas / Puntos no claros:</label>
+                        <textarea id="summaryUnknown" rows="5" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón de Generar PDF -->
+            <div class="text-center">
+                <button id="generar-pdf" class="w-full md:w-auto px-8 py-4 bg-blue-700 text-white text-lg font-bold rounded-lg shadow-lg hover:bg-blue-800 transition-all duration-200">
+                    Generar Reporte PDF de la Revisión
+                </button>
+            </div>
+
+            <!-- Pie de página de atribución -->
+            <footer class="text-center text-xs text-gray-500 mt-12 mb-4">
+                <p>Esta herramienta está basada en el trabajo de CASP - Critical Appraisal Skills Programme (2024).</p>
+                <p>Aplicación Web por Netzahualpilli Delgado Figueroa.</p>
+            </footer>
         </div>
-
-        <!-- Pie de página de atribución -->
-        <footer class="text-center text-xs text-gray-500 mt-12 mb-4">
-            <p>Esta herramienta está basada en el trabajo de CASP - Critical Appraisal Skills Programme (2024).</p>
-            <p>Aplicación Web por Netzahualpilli Delgado Figueroa.</p>
-        </footer>
-
     </div>
 
     <!-- Elemento oculto para generar el PDF -->
@@ -241,165 +281,332 @@
 
 
     <script>
-        // Definición de las preguntas basadas en el PDF de CASP RCT
-        const secciones = [
-            {
-                titulo: "Sección A: ¿Es válido el diseño básico del estudio para un ensayo controlado aleatorizado?",
-                preguntas: [
+        // --- BASE DE DATOS DE TODAS LAS CHECKLISTS ---
+        const allChecklists = {
+            // 1. Ensayo Controlado Aleatorizado (RCT)
+            'rct': {
+                titulo: 'Ensayo Controlado Aleatorizado (RCT)',
+                secciones: [
                     {
-                        id: 'q1',
-                        texto: '1. ¿El estudio abordó una pregunta de investigación claramente formulada?',
-                        hints: [
-                            '¿El estudio fue diseñado para evaluar los resultados de una intervención?',
-                            '¿La pregunta de investigación está "formulada" en términos de:',
-                            '• Población estudiada',
-                            '• Intervención administrada',
-                            '• Comparador elegido',
-                            '• Resultados medidos?'
+                        titulo: "Sección A: ¿Es válido el diseño básico del estudio para un ensayo controlado aleatorizado?",
+                        preguntas: [
+                            {
+                                id: 'q1',
+                                texto: '1. ¿El estudio abordó una pregunta de investigación claramente formulada?',
+                                hints: ['¿El estudio fue diseñado para evaluar los resultados de una intervención?', '¿La pregunta de investigación está "formulada" en términos de: • Población estudiada • Intervención administrada • Comparador elegido • Resultados medidos?']
+                            },
+                            {
+                                id: 'q2',
+                                texto: '2. ¿Fue aleatoria la asignación de los participantes a las intervenciones?',
+                                hints: ['¿Cómo se llevó a cabo la aleatorización? ¿Fue el método apropiado?', '¿Fue la aleatorización suficiente para eliminar sesgos sistemáticos?', '¿Se ocultó la secuencia de asignación a los investigadores y participantes?']
+                            },
+                            {
+                                id: 'q3',
+                                texto: '3. ¿Se tuvieron en cuenta todos los participantes que entraron en el estudio al finalizar?',
+                                hints: ['¿Se tuvieron en cuenta las pérdidas durante el seguimiento y las exclusiones después de la aleatorización?', '¿Se analizaron los participantes en los grupos de estudio a los que fueron aleatorizados (análisis por intención de tratar)?', '¿Se detuvo el estudio antes de tiempo? Si es así, ¿cuál fue la razón?']
+                            }
                         ]
                     },
                     {
-                        id: 'q2',
-                        texto: '2. ¿Fue aleatoria la asignación de los participantes a las intervenciones?',
-                        hints: [
-                            '¿Cómo se llevó a cabo la aleatorización? ¿Fue el método apropiado?',
-                            '¿Fue la aleatorización suficiente para eliminar sesgos sistemáticos?',
-                            '¿Se ocultó la secuencia de asignación a los investigadores y participantes?'
+                        titulo: "Sección B: ¿Fue el estudio metodológicamente sólido?",
+                        preguntas: [
+                            { id: 'q4a', texto: '4(a). ¿Estaban los participantes "ciegos" a la intervención que se les dio?', hints: [] },
+                            { id: 'q4b', texto: '4(b). ¿Estaban los investigadores "ciegos" a la intervención que estaban dando a los participantes?', hints: [] },
+                            { id: 'q4c', texto: '4(c). ¿Estaban "ciegas" las personas que evaluaban/analizaban los resultados?', hints: [] },
+                            {
+                                id: 'q5',
+                                texto: '5. ¿Fueron similares los grupos de estudio al inicio del ensayo controlado aleatorizado?',
+                                hints: ['¿Se expusieron claramente las características basales de cada grupo de estudio (p. ej., edad, sexo, grupo socioeconómico)?', '¿Hubo alguna diferencia entre los grupos de estudio que pudiera afectar el/los resultado/s?']
+                            },
+                            {
+                                id: 'q6',
+                                texto: '6. Aparte de la intervención experimental, ¿recibió cada grupo de estudio el mismo nivel de atención (es decir, fueron tratados por igual)?',
+                                hints: ['¿Hubo un protocolo de estudio claramente definido?', 'Si se administraron intervenciones adicionales (p. ej., pruebas o tratamientos), ¿fueron similares entre los grupos de estudio?', '¿Fueron iguales los intervalos de seguimiento para cada grupo de estudio?']
+                            }
                         ]
                     },
                     {
-                        id: 'q3',
-                        texto: '3. ¿Se tuvieron en cuenta todos los participantes que entraron en el estudio al finalizar?',
-                        hints: [
-                            '¿Se tuvieron en cuenta las pérdidas durante el seguimiento y las exclusiones después de la aleatorización?',
-                            '¿Se analizaron los participantes en los grupos de estudio a los que fueron aleatorizados (análisis por intención de tratar)?',
-                            '¿Se detuvo el estudio antes de tiempo? Si es así, ¿cuál fue la razón?'
-                        ]
-                    }
-                ]
-            },
-            {
-                titulo: "Sección B: ¿Fue el estudio metodológicamente sólido?",
-                preguntas: [
-                    {
-                        id: 'q4a',
-                        texto: '4(a). ¿Estaban los participantes "ciegos" a la intervención que se les dio?',
-                        hints: []
-                    },
-                    {
-                        id: 'q4b',
-                        texto: '4(b). ¿Estaban los investigadores "ciegos" a la intervención que estaban dando a los participantes?',
-                        hints: []
-                    },
-                    {
-                        id: 'q4c',
-                        texto: '4(c). ¿Estaban "ciegas" las personas que evaluaban/analizaban los resultados?',
-                        hints: []
-                    },
-                    {
-                        id: 'q5',
-                        texto: '5. ¿Fueron similares los grupos de estudio al inicio del ensayo controlado aleatorizado?',
-                        hints: [
-                            '¿Se expusieron claramente las características basales de cada grupo de estudio (p. ej., edad, sexo, grupo socioeconómico)?',
-                            '¿Hubo alguna diferencia entre los grupos de estudio que pudiera afectar el/los resultado/s?'
+                        titulo: "Sección C: ¿Cuáles son los resultados?",
+                        preguntas: [
+                            {
+                                id: 'q7',
+                                texto: '7. ¿Se informaron de manera exhaustiva los efectos de la intervención?',
+                                hints: ['¿Se realizó un cálculo de potencia?', '¿Qué resultados se midieron y se especificaron claramente?', '¿Cómo se expresaron los resultados? Para resultados binarios, ¿se informaron los efectos relativos y absolutos?', '¿Se informaron los resultados para cada resultado en cada grupo de estudio en cada intervalo de seguimiento?', '¿Hubo datos faltantes o incompletos?', '¿Hubo un abandono diferencial entre los grupos de estudio que pudiera afectar los resultados?', '¿Se identificaron posibles fuentes de sesgo?', '¿Qué pruebas estadísticas se utilizaron?', '¿Se informaron los valores p?']
+                            },
+                            { id: 'q8', texto: '8. ¿Se informó la precisión de la estimación de la intervención o el efecto del tratamiento?', hints: ['¿Se informaron los intervalos de confianza (IC)?'] },
+                            {
+                                id: 'q9',
+                                texto: '9. ¿Superan los beneficios de la intervención experimental los daños y costos?',
+                                hints: ['¿Cuál fue el tamaño del efecto de la intervención o tratamiento?', '¿Se informaron daños o efectos no deseados para cada grupo de estudio?', '¿Se realizó un análisis de costo-efectividad?']
+                            }
                         ]
                     },
                     {
-                        id: 'q6',
-                        texto: '6. Aparte de la intervención experimental, ¿recibió cada grupo de estudio el mismo nivel de atención (es decir, fueron tratados por igual)?',
-                        hints: [
-                            '¿Hubo un protocolo de estudio claramente definido?',
-                            'Si se administraron intervenciones adicionales (p. ej., pruebas o tratamientos), ¿fueron similares entre los grupos de estudio?',
-                            '¿Fueron iguales los intervalos de seguimiento para cada grupo de estudio?'
-                        ]
-                    }
-                ]
-            },
-            {
-                titulo: "Sección C: ¿Cuáles son los resultados?",
-                preguntas: [
-                    {
-                        id: 'q7',
-                        texto: '7. ¿Se informaron de manera exhaustiva los efectos de la intervención?',
-                        hints: [
-                            '¿Se realizó un cálculo de potencia?',
-                            '¿Qué resultados se midieron y se especificaron claramente?',
-                            '¿Cómo se expresaron los resultados? Para resultados binarios, ¿se informaron los efectos relativos y absolutos?',
-                            '¿Se informaron los resultados para cada resultado en cada grupo de estudio en cada intervalo de seguimiento?',
-                            '¿Hubo datos faltantes o incompletos?',
-                            '¿Hubo un abandono diferencial entre los grupos de estudio que pudiera afectar los resultados?',
-                            '¿Se identificaron posibles fuentes de sesgo?',
-                            '¿Qué pruebas estadísticas se utilizaron?',
-                            '¿Se informaron los valores p?'
-                        ]
-                    },
-                    {
-                        id: 'q8',
-                        texto: '8. ¿Se informó la precisión de la estimación de la intervención o el efecto del tratamiento?',
-                        hints: [
-                            '¿Se informaron los intervalos de confianza (IC)?'
-                        ]
-                    },
-                    {
-                        id: 'q9',
-                        texto: '9. ¿Superan los beneficios de la intervención experimental los daños y costos?',
-                        hints: [
-                            '¿Cuál fue el tamaño del efecto de la intervención o tratamiento?',
-                            '¿Se informaron daños o efectos no deseados para cada grupo de estudio?',
-                            '¿Se realizó un análisis de costo-efectividad? (El análisis de costo-efectividad permite comparar diferentes intervenciones utilizadas en el cuidado de la misma condición o problema).'
+                        titulo: "Sección D: ¿Ayudarán los resultados localmente?",
+                        preguntas: [
+                            {
+                                id: 'q10',
+                                texto: '10. ¿Se pueden aplicar los resultados a su población local/en su contexto?',
+                                hints: ['¿Son los participantes del estudio similares a las personas bajo su cuidado?', '¿Alguna diferencia entre su población y los participantes del estudio alteraría los resultados informados en el estudio?', '¿Son los resultados importantes para su población?']
+                            },
+                            {
+                                id: 'q11',
+                                texto: '11. ¿Proporcionaría la intervención experimental un mayor valor a las personas bajo su cuidado que cualquiera de las intervenciones existentes?',
+                                hints: ['¿Qué recursos se necesitan para introducir esta intervención?', '¿Puede desinvertir recursos en una o más intervenciones existentes para poder reinvertir en la nueva intervención?']
+                            }
                         ]
                     }
                 ]
             },
-            {
-                titulo: "Sección D: ¿Ayudarán los resultados localmente?",
-                preguntas: [
+
+            // 2. Revisión Sistemática (de RCTs)
+            'sysReviewRCT': {
+                titulo: 'Revisión Sistemática (de RCTs)',
+                secciones: [
                     {
-                        id: 'q10',
-                        texto: '10. ¿Se pueden aplicar los resultados a su población local/en su contexto?',
-                        hints: [
-                            '¿Son los participantes del estudio similares a las personas bajo su cuidado?',
-                            '¿Alguna diferencia entre su población y los participantes del estudio alteraría los resultados informados en el estudio?',
-                            '¿Son los resultados importantes para su población?',
-                            '¿Hay algún resultado sobre el que le hubiera gustado tener información que no se haya estudiado o informado?',
-                            '¿Existen limitaciones del estudio que afectarían su decisión?'
+                        titulo: "Sección A: ¿Es válido el diseño básico del estudio para una revisión sistemática?",
+                        preguntas: [
+                            { id: 'q1', texto: '1. ¿La revisión sistemática abordó una pregunta de investigación claramente formulada?', hints: ['¿Se indicó la pregunta de investigación y una hipótesis nula? Para una RS de RCTs, una pregunta de investigación puede "formularse" en términos del marco PICOT(S): • Población • Intervención • Comparador • Resultados (Outcomes) • Tiempo • Ámbito (Setting)'] },
+                            { id: 'q2', texto: '2. ¿Los investigadores buscaron el/los diseño/s de estudio apropiado/s para responder la pregunta de investigación?', hints: ['Si la pregunta de investigación se refiere a la eficacia de una intervención, ¿los investigadores buscaron RCTs?', 'Si se incluyeron otros diseños de estudio, ¿por qué?'] },
+                            { id: 'q3', texto: '3. ¿Los investigadores utilizaron una estrategia de búsqueda integral y claramente definida?', hints: ['¿Qué bases de datos se utilizaron?', '¿Se proporcionaron los términos de búsqueda?', '¿Se buscaron estudios no publicados (literatura gris)?', '¿Se buscó en listas de referencias, registros de ensayos, resúmenes de conferencias?'] }
                         ]
                     },
                     {
-                        id: 'q11',
-                        texto: '11. ¿Proporcionaría la intervención experimental un mayor valor a las personas bajo su cuidado que cualquiera de las intervenciones existentes?',
-                        hints: [
-                            '¿Qué recursos se necesitan para introducir esta intervención teniendo en cuenta el tiempo, las finanzas y el desarrollo de habilidades o las necesidades de capacitación?',
-                            '¿Puede desinvertir recursos en una o más intervenciones existentes para poder reinvertir en la nueva intervención?'
+                        titulo: "Sección B: ¿Fue la revisión sistemática metodológicamente sólida?",
+                        preguntas: [
+                            { id: 'q4', texto: '4. ¿Los investigadores minimizaron el sesgo en el proceso de selección de estudios?', hints: ['¿Se indicó el número de revisores involucrados en la selección de estudios?', '¿Se realizó la selección de estudios por duplicado y de forma independiente?', '¿Cómo se resolvieron los desacuerdos?'] },
+                            { id: 'q5', texto: '5. ¿Los investigadores minimizaron el sesgo en el proceso de extracción de datos?', hints: ['¿Se indicó el número de revisores involucrados en la extracción de datos?', '¿Se realizó la extracción de datos por duplicado y de forma independiente?', '¿Cómo se resolvieron los desacuerdos?'] },
+                            { id: 'q6', texto: '6. ¿Los investigadores evaluaron el riesgo de sesgo de los estudios primarios incluidos?', hints: ['¿Se utilizó una herramienta de evaluación del riesgo de sesgo (RoB) (p. ej., Cochrane RoB 2, ROBIS)?', '¿Se indicó el número de revisores que evaluaron el RoB?', '¿Se evaluó el RoB por duplicado y de forma independiente?'] },
+                            { id: 'q7', texto: '7. Si se realizó un metaanálisis, ¿fue apropiado hacerlo?', hints: ['¿Se justificó el metaanálisis?', '¿Se evaluó la heterogeneidad (p. ej., I²)?', '¿Se investigaron las razones de la heterogeneidad?'] }
+                        ]
+                    },
+                    {
+                        titulo: "Sección C: ¿Cuáles son los resultados?",
+                        preguntas: [
+                            { id: 'q8', texto: '8. ¿Se informaron de manera exhaustiva los resultados?', hints: ['¿Cuántos estudios se incluyeron/excluyeron en cada etapa?', '¿Se presentaron los resultados del metaanálisis (p. ej., Forest Plot)?', '¿Se presentaron los resultados en relación con cada resultado medido?'] },
+                            { id: 'q9', texto: '9. ¿Se informó la precisión de la estimación de la intervención o el efecto del tratamiento?', hints: ['¿Se informaron los intervalos de confianza (IC)?'] },
+                            { id: 'q10', texto: '10. ¿Se pueden aplicar los resultados a su población local/en su contexto?', hints: ['¿Son los participantes en los estudios incluidos similares a las personas bajo su cuidado?', '¿Alguna diferencia alteraría los resultados informados?', '¿Son los resultados importantes para su población?'] },
+                            { id: 'q11', texto: '11. ¿Proporcionaría la intervención experimental un mayor valor a las personas bajo su cuidado que cualquiera de las intervenciones existentes?', hints: ['¿Qué recursos se necesitan para introducir esta intervención?', '¿Puede desinvertir recursos en intervenciones existentes para reinvertir en la nueva?'] }
+                        ]
+                    }
+                ]
+            },
+
+            // 3. Revisión Sistemática (Observacional)
+            'sysReviewObs': {
+                titulo: 'Revisión Sistemática (Observacional)',
+                secciones: [
+                    {
+                        titulo: "Sección A: ¿Es válido el diseño básico del estudio para una revisión sistemática?",
+                        preguntas: [
+                            { id: 'q1', texto: '1. ¿La revisión sistemática abordó una pregunta de investigación claramente formulada?', hints: ['¿Se indicó la pregunta de investigación y una hipótesis nula? Para una RS de estudios observacionales, una pregunta de investigación puede "formularse" en términos del marco PECOT(S): • Población • Exposición/Factor de Riesgo • Detección de efecto • Comparador/Controles • Resultados (Outcomes) • Tiempo • Ámbito (Setting)'] },
+                            { id: 'q2', texto: '2. ¿Los investigadores buscaron el/los diseño/s de estudio apropiado/s para responder la pregunta de investigación?', hints: ['Si la pregunta se refiere a la prevalencia de una enfermedad, ¿se buscaron estudios transversales?', 'Si se refiere a la asociación entre un factor de riesgo y un resultado, ¿se buscaron cohortes o casos y controles?'] },
+                            { id: 'q3', texto: '3. ¿Los investigadores utilizaron una estrategia de búsqueda integral y claramente definida?', hints: ['¿Qué bases de datos se utilizaron?', '¿Se proporcionaron los términos de búsqueda?', '¿Se buscó literatura gris?', '¿Se buscó en listas de referencias, etc.?'] }
+                        ]
+                    },
+                    {
+                        titulo: "Sección B: ¿Fue la revisión sistemática metodológicamente sólida?",
+                        preguntas: [
+                            { id: 'q4', texto: '4. ¿Los investigadores minimizaron el sesgo en el proceso de selección de estudios?', hints: ['¿Número de revisores?', '¿Selección por duplicado e independiente?', '¿Resolución de desacuerdos?'] },
+                            { id: 'q5', texto: '5. ¿Los investigadores evaluaron el riesgo de sesgo de los estudios primarios incluidos?', hints: ['¿Se utilizó una herramienta de evaluación del riesgo de sesgo (RoB) (p. ej., ROBINS-I, Newcastle-Ottawa)?', '¿Número de revisores?', '¿Evaluación por duplicado e independiente?'] },
+                            { id: 'q6', texto: '6. Si se realizó un metaanálisis, ¿fue apropiado hacerlo?', hints: ['¿Se justificó el metaanálisis?', '¿Se evaluó la heterogeneidad (p. ej., I²)?', '¿Se investigaron las razones de la heterogeneidad?'] }
+                        ]
+                    },
+                    {
+                        titulo: "Sección C: ¿Cuáles son los resultados?",
+                        preguntas: [
+                            { id: 'q7', texto: '7. ¿Se informaron de manera exhaustiva los resultados?', hints: ['¿Cuántos estudios se incluyeron/excluyeron?', '¿Se presentaron los resultados del metaanálisis (p. ej., Forest Plot)?', '¿Resultados para cada resultado medido?'] },
+                            { id: 'q8', texto: '8. ¿Se informó la precisión de la estimación de la intervención o el efecto del tratamiento?', hints: ['¿Se informaron los intervalos de confianza (IC)?'] },
+                            { id: 'q9', texto: '9. ¿Se pueden aplicar los resultados a su población local/en su contexto?', hints: ['¿Son los participantes en los estudios incluidos similares a las personas bajo su cuidado?', '¿Alguna diferencia alteraría los resultados?', '¿Son los resultados importantes?'] },
+                            { id: 'q10', texto: '10. ¿Ayudarán los resultados a informar las decisiones y/o la práctica local?', hints: ['¿Qué recursos se necesitan?', '¿Se pueden desinvertir recursos de otras áreas?'] }
+                        ]
+                    }
+                ]
+            },
+
+            // 4. Estudio de Cohortes
+            'cohort': {
+                titulo: 'Estudio de Cohortes',
+                secciones: [
+                    {
+                        titulo: "Sección A: ¿Son válidos los resultados?",
+                        preguntas: [
+                            { id: 'q1', texto: '1. ¿El estudio abordó un problema claramente enfocado?', hints: ['¿Población estudiada?', '¿Factores de riesgo estudiados?', '¿El estudio intentó detectar un efecto beneficioso o perjudicial?', '¿Resultados considerados?'] },
+                            { id: 'q2', texto: '2. ¿Se reclutó la cohorte de una manera aceptable?', hints: ['¿Fue la cohorte representativa de una población definida?', '¿Había algo especial en la cohorte?', '¿Se incluyó a todos los que deberían haberse incluido?'] },
+                            { id: 'q3', texto: '3. ¿Se midió con precisión la exposición para minimizar el sesgo?', hints: ['¿Se utilizó una medida subjetiva u objetiva?', '¿Son fiables las medidas?', '¿Se midió la exposición de la misma manera en todos los participantes?'] },
+                            { id: 'q4', texto: '4. ¿Se midió el resultado con precisión para minimizar el sesgo?', hints: ['¿Medida subjetiva u objetiva?', '¿Medidas fiables?', '¿Se midió el resultado de la misma manera en todos?'] },
+                            { id: 'q5', texto: '5. (a) ¿Los autores han identificado todos los factores de confusión importantes? (b) ¿Han tenido en cuenta los factores de confusión en el diseño y/o análisis?', hints: ['¿Lista de posibles factores de confusión?', '¿Se tuvieron en cuenta (p. ej., estratificación, regresión)?'] },
+                            { id: 'q6', texto: '6. ¿El seguimiento de los participantes fue lo suficientemente largo y completo?', hints: ['¿El seguimiento fue lo suficientemente largo para que ocurriera el resultado?', '¿Hubo pérdidas en el seguimiento que pudieran afectar los resultados?'] }
+                        ]
+                    },
+                    {
+                        titulo: "Sección B: ¿Cuáles son los resultados?",
+                        preguntas: [
+                            { id: 'q7', texto: '7. ¿Cuáles son los resultados del estudio?', hints: ['¿Cuál es el resultado general?', '¿Hay algún resultado sobre el que le hubiera gustado tener información que no se haya estudiado o informado?'] },
+                            { id: 'q8', texto: '8. ¿Cuán precisos son los resultados?', hints: ['¿Se informaron los intervalos de confianza (IC)?'] },
+                            { id: 'q9', texto: '9. ¿Cree en los resultados?', hints: ['¿Un efecto grande?', '¿Se puede deber al azar, sesgo o confusión?', '¿Los resultados son consistentes con otros estudios?'] }
+                        ]
+                    },
+                    {
+                        titulo: "Sección C: ¿Ayudarán los resultados localmente?",
+                        preguntas: [
+                            { id: 'q10', texto: '10. ¿Se pueden aplicar los resultados a su población local/en su contexto?', hints: ['¿Son los participantes similares a las personas bajo su cuidado?', '¿Alguna diferencia alteraría los resultados?', '¿Son los resultados importantes para su población?'] },
+                            { id: 'q11', texto: '11. ¿Consideró el estudio otros hallazgos importantes a tener en cuenta?', hints: ['¿Alguna otra evidencia de otros estudios que deba considerarse?'] },
+                            { id: 'q12', texto: '12. ¿Cuáles son las implicaciones de este estudio para la práctica?', hints: ['¿Un resultado claro para aplicar?', '¿Se necesita más investigación?'] }
+                        ]
+                    }
+                ]
+            },
+
+            // 5. Estudio de Casos y Controles
+            'caseControl': {
+                titulo: 'Estudio de Casos y Controles',
+                secciones: [
+                    {
+                        titulo: "Sección A: ¿Son válidos los resultados del estudio?",
+                        preguntas: [
+                            { id: 'q1', texto: '1. ¿El estudio abordó un problema claramente enfocado?', hints: ['¿Población estudiada?', '¿Se intentó detectar un efecto beneficioso o perjudicial?', '¿Factores de riesgo estudiados?'] },
+                            { id: 'q2', texto: '2. ¿Utilizaron los autores un método apropiado para responder a su pregunta?', hints: ['¿Es un estudio de casos y controles una forma apropiada de responder a la pregunta?', '¿Abordó la pregunta del estudio?'] },
+                            { id: 'q3', texto: '3. ¿Se reclutaron los casos de una manera aceptable?', hints: ['¿Se definen los casos con precisión?', '¿Se seleccionaron los casos de una manera que minimice el sesgo?'] },
+                            { id: 'q4', texto: '4. ¿Se seleccionaron los controles de una manera aceptable?', hints: ['¿Se seleccionaron los controles de una manera que minimice el sesgo?', '¿La fuente de los controles es apropiada?'] },
+                            { id: 'q5', texto: '5. ¿Se midió la exposición con precisión para minimizar el sesgo?', hints: ['¿Se midió la exposición de la misma manera para casos y controles?', '¿Se utilizaron medidas subjetivas u objetivas?', '¿Son fiables las medidas?'] },
+                            { id: 'q6', texto: '6. (a) ¿Los autores han identificado todos los factores de confusión importantes? (b) ¿Han tenido en cuenta los factores de confusión en el diseño y/o análisis?', hints: ['¿Lista de posibles factores de confusión?', '¿Se tuvieron en cuenta (p. ej., emparejamiento, estratificación, regresión)?'] }
+                        ]
+                    },
+                    {
+                        titulo: "Sección B: ¿Cuáles son los resultados?",
+                        preguntas: [
+                            { id: 'q7', texto: '7. ¿Cuáles son los resultados del estudio?', hints: ['¿Se informaron los Odds Ratios (OR) o los Riesgos Relativos (RR)?', '¿Se relacionan los resultados con la pregunta del estudio?'] },
+                            { id: 'q8', texto: '8. ¿Cuán precisos son los resultados?', hints: ['¿Se informaron los intervalos de confianza (IC)?'] },
+                            { id: 'q9', texto: '9. ¿Cree en los resultados?', hints: ['¿Efecto grande?', '¿Se puede deber al azar, sesgo o confusión?', '¿Consistentes con otros estudios?'] }
+                        ]
+                    },
+                    {
+                        titulo: "Sección C: ¿Ayudarán los resultados localmente?",
+                        preguntas: [
+                            { id: 'q10', texto: '10. ¿Se pueden aplicar los resultados a su población local/en su contexto?', hints: ['¿Son los participantes similares a las personas bajo su cuidado?', '¿Alguna diferencia alteraría los resultados?', '¿Son los resultados importantes?'] },
+                            { id: 'q11', texto: '11. ¿Cuáles son las implicaciones de este estudio para la práctica?', hints: ['¿Un resultado claro para aplicar?', '¿Se necesita más investigación?'] }
+                        ]
+                    }
+                ]
+            },
+
+            // 6. Estudio Transversal / Descriptivo
+            'crossSectional': {
+                titulo: 'Estudio Transversal / Descriptivo',
+                secciones: [
+                    {
+                        titulo: "Sección A: ¿Son válidos los resultados?",
+                        preguntas: [
+                            { id: 'q1', texto: '1. ¿El estudio abordó un problema claramente enfocado?', hints: ['¿Población estudiada?', '¿Factores de riesgo estudiados?', '¿Se intentó detectar un efecto beneficioso o perjudicial?', '¿Resultados considerados?'] },
+                            { id: 'q2', texto: '2. ¿Utilizaron los autores un método apropiado para responder a su pregunta?', hints: ['¿Es un estudio descriptivo/transversal una forma apropiada?', '¿Abordó la pregunta del estudio?'] },
+                            { id: 'q3', texto: '3. ¿Se reclutaron los sujetos de una manera aceptable?', hints: ['¿Se definen los sujetos con precisión?', '¿Se seleccionaron de una manera que minimice el sesgo?'] },
+                            { id: 'q4', texto: '4. ¿Se midió el resultado con precisión para minimizar el sesgo?', hints: ['¿Medida subjetiva u objetiva?', '¿Medidas fiables?', '¿Se midió el resultado de la misma manera en todos?'] },
+                            { id: 'q5', texto: '5. ¿Se midió la exposición con precisión para minimizar el sesgo?', hints: ['¿Se midió la exposición de la misma manera?', '¿Medidas subjetivas u objetivas?', '¿Fiables?'] },
+                            { id: 'q6', texto: '6. (a) ¿Los autores han identificado todos los factores de confusión importantes? (b) ¿Han tenido en cuenta los factores de confusión en el diseño y/o análisis?', hints: ['¿Lista de posibles factores de confusión?', '¿Se tuvieron en cuenta?'] }
+                        ]
+                    },
+                    {
+                        titulo: "Sección B: ¿Cuáles son los resultados?",
+                        preguntas: [
+                            { id: 'q7', texto: '7. ¿Cuáles son los resultados del estudio?', hints: ['¿Cuáles son los resultados principales (p. ej., prevalencia, asociaciones)?'] },
+                            { id: 'q8', texto: '8. ¿Cuán precisos son los resultados?', hints: ['¿Se informaron los intervalos de confianza (IC)?'] },
+                            { id: 'q9', texto: '9. ¿Cree en los resultados?', hints: ['¿Efecto grande?', '¿Se puede deber al azar, sesgo o confusión?', '¿Consistentes con otros estudios?'] }
+                        ]
+                    },
+                    {
+                        titulo: "Sección C: ¿Ayudarán los resultados localmente?",
+                        preguntas: [
+                            { id: 'q10', texto: '10. ¿Se pueden aplicar los resultados a su población local/en su contexto?', hints: ['¿Son los participantes similares a las personas bajo su cuidado?', '¿Alguna diferencia alteraría los resultados?', '¿Son los resultados importantes?'] },
+                            { id: 'q11', texto: '11. ¿Cuáles son las implicaciones de este estudio para la práctica?', hints: ['¿Un resultado claro para aplicar?', '¿Se necesita más investigación?'] }
                         ]
                     }
                 ]
             }
-        ];
+        };
 
-        // Objeto para almacenar todas las respuestas
-        const appData = {
+        // --- ESTADO GLOBAL DE LA APP ---
+        let appData = {
             info: {},
             respuestas: {},
             resumen: {}
         };
+        let currentChecklistType = null;
+        let currentChecklistTitle = '';
 
-        // Función para generar las preguntas en el HTML
-        function renderizarPreguntas() {
-            const container = document.getElementById('preguntas-container');
+        // --- FUNCIONES PRINCIPALES ---
+
+        /**
+         * Inicia la aplicación con un checklist específico.
+         */
+        function iniciarApp(tipo, titulo) {
+            currentChecklistType = tipo;
+            currentChecklistTitle = titulo;
+
+            document.getElementById('seleccion-checklist').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            document.getElementById('app-subtitle').textContent = `Checklist: ${titulo}`;
             
-            secciones.forEach(seccion => {
-                // Crear contenedor de sección
+            resetearApp(); // Limpia campos y datos
+            renderizarPreguntas(tipo); // Dibuja las preguntas
+            agregarListenersGenerales(); // Añade listeners a campos de info y resumen
+        }
+
+        /**
+         * Regresa a la pantalla de selección.
+         */
+        function volverASeleccion() {
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('seleccion-checklist').style.display = 'block';
+            currentChecklistType = null;
+            currentChecklistTitle = '';
+            resetearApp();
+        }
+
+        /**
+         * Limpia todos los inputs y el estado de la app.
+         */
+        function resetearApp() {
+            // Limpiar datos en memoria
+            appData = { info: {}, respuestas: {}, resumen: {} };
+            
+            // Limpiar campos de UI
+            document.getElementById('reviewerName').value = '';
+            document.getElementById('appraisalDate').value = '';
+            document.getElementById('paperTitle').value = '';
+            document.getElementById('author').value = '';
+            document.getElementById('webLink').value = '';
+            document.getElementById('summaryPositive').value = '';
+            document.getElementById('summaryNegative').value = '';
+            document.getElementById('summaryUnknown').value = '';
+            
+            // Limpiar contenedor de preguntas
+            document.getElementById('preguntas-container').innerHTML = '';
+        }
+
+
+        /**
+         * Genera las preguntas en el HTML basado en el tipo de checklist.
+         */
+        function renderizarPreguntas(tipoChecklist) {
+            const container = document.getElementById('preguntas-container');
+            container.innerHTML = ''; // Limpiar por si acaso
+            
+            const checklist = allChecklists[tipoChecklist];
+            if (!checklist) {
+                container.innerHTML = '<p class="text-red-500">Error: Checklist no encontrado.</p>';
+                return;
+            }
+
+            checklist.secciones.forEach(seccion => {
                 const seccionDiv = document.createElement('div');
                 seccionDiv.className = 'bg-white rounded-lg shadow-md mb-8 p-6';
                 
-                // Título de la sección
                 const seccionTitulo = document.createElement('h2');
                 seccionTitulo.className = 'text-2xl font-bold text-gray-700 mb-6 border-b pb-2';
                 seccionTitulo.textContent = seccion.titulo;
                 seccionDiv.appendChild(seccionTitulo);
 
-                // Contenedor de preguntas para esta sección
                 const preguntasDiv = document.createElement('div');
                 preguntasDiv.className = 'space-y-8';
 
@@ -411,17 +618,14 @@
                         comentarios: ''
                     };
 
-                    // Contenedor de una pregunta
                     const item = document.createElement('div');
                     item.className = 'pregunta-item border-t pt-6';
                     
-                    // Texto de la pregunta
                     const pTexto = document.createElement('p');
                     pTexto.className = 'text-lg font-semibold text-gray-800 mb-3';
                     pTexto.textContent = pregunta.texto;
                     item.appendChild(pTexto);
 
-                    // Pistas (Hints)
                     if (pregunta.hints.length > 0) {
                         const hintsDiv = document.createElement('div');
                         hintsDiv.className = 'text-sm text-gray-600 bg-gray-50 p-3 rounded-md mb-4 border border-gray-200';
@@ -440,7 +644,6 @@
                         item.appendChild(hintsDiv);
                     }
 
-                    // Botones de respuesta
                     const botonesDiv = document.createElement('div');
                     botonesDiv.className = 'flex flex-wrap gap-2 mb-4';
                     
@@ -470,7 +673,6 @@
                     });
                     item.appendChild(botonesDiv);
 
-                    // Área de comentarios
                     const comentariosLabel = document.createElement('label');
                     comentariosLabel.htmlFor = `comments_${pregunta.id}`;
                     comentariosLabel.className = 'block text-sm font-medium text-gray-600 mb-1';
@@ -495,22 +697,23 @@
             });
         }
 
-        // Función para actualizar los datos de info y resumen en appData
+        /**
+         * Actualiza el objeto appData con la info general.
+         */
         function actualizarDatosGenerales() {
-            // Info Artículo
             appData.info.reviewerName = document.getElementById('reviewerName').value;
             appData.info.appraisalDate = document.getElementById('appraisalDate').value;
             appData.info.paperTitle = document.getElementById('paperTitle').value;
             appData.info.author = document.getElementById('author').value;
             appData.info.webLink = document.getElementById('webLink').value;
-            
-            // Resumen
             appData.resumen.positive = document.getElementById('summaryPositive').value;
             appData.resumen.negative = document.getElementById('summaryNegative').value;
             appData.resumen.unknown = document.getElementById('summaryUnknown').value;
         }
 
-        // Event Listeners para los campos generales
+        /**
+         * Añade listeners a los campos de info y resumen.
+         */
         function agregarListenersGenerales() {
             document.getElementById('reviewerName').addEventListener('input', actualizarDatosGenerales);
             document.getElementById('appraisalDate').addEventListener('input', actualizarDatosGenerales);
@@ -522,18 +725,18 @@
             document.getElementById('summaryUnknown').addEventListener('input', actualizarDatosGenerales);
         }
 
-        // Función para generar el contenido del PDF
+        /**
+         * Prepara el contenido para el div oculto que se usará para el PDF.
+         */
         function prepararContenidoPDF() {
-            actualizarDatosGenerales(); // Asegurarse de que los últimos datos están capturados
+            actualizarDatosGenerales(); 
             const container = document.getElementById('reporte-para-pdf');
-            container.innerHTML = ''; // Limpiar contenido anterior
+            container.innerHTML = ''; 
 
-            // Título del Reporte
             const h1 = document.createElement('h1');
-            h1.textContent = 'Reporte de Lectura Crítica CASP (RCT)';
+            h1.textContent = `Reporte de Lectura Crítica CASP (${currentChecklistTitle})`;
             container.appendChild(h1);
 
-            // Sección de Información del Artículo
             const h2Info = document.createElement('h2');
             h2Info.textContent = 'Información del Artículo';
             container.appendChild(h2Info);
@@ -549,8 +752,8 @@
             `;
             container.appendChild(infoDiv);
 
-            // Secciones y Preguntas
-            secciones.forEach(seccion => {
+            const checklist = allChecklists[currentChecklistType];
+            checklist.secciones.forEach(seccion => {
                 const h2Seccion = document.createElement('h2');
                 h2Seccion.textContent = seccion.titulo;
                 container.appendChild(h2Seccion);
@@ -596,7 +799,6 @@
                 });
             });
             
-            // Sección de Resumen
             const h2Resumen = document.createElement('h2');
             h2Resumen.textContent = 'Resumen de la Evaluación';
             container.appendChild(h2Resumen);
@@ -619,10 +821,14 @@
             container.appendChild(resumenDiv);
         }
 
-        // Función para manejar el clic en "Generar PDF"
+        /**
+         * Genera y descarga el PDF.
+         */
         async function generarPDF() {
+            if (!currentChecklistType) return; // No hacer nada si no hay checklist
+
             const loader = document.getElementById('loader');
-            loader.style.display = 'flex'; // Mostrar loader
+            loader.style.display = 'flex'; 
             
             prepararContenidoPDF();
             const { jsPDF } = window.jspdf;
@@ -633,11 +839,11 @@
             });
 
             const content = document.getElementById('reporte-para-pdf');
-            content.style.display = 'block'; // Mostrar temporalmente para que html2canvas lo capture
+            content.style.display = 'block'; 
 
             try {
                 const canvas = await html2canvas(content, {
-                    scale: 2, // Aumentar la escala para mejor calidad
+                    scale: 2, 
                     useCORS: true,
                     windowWidth: content.scrollWidth,
                     windowHeight: content.scrollHeight
@@ -661,28 +867,37 @@
                     heightLeft -= pdf.internal.pageSize.getHeight();
                 }
 
-                // Generar un nombre de archivo
                 const paperTitle = appData.info.paperTitle || 'articulo';
                 const safeTitle = paperTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase().substring(0, 30);
-                pdf.save(`reporte_casp_${safeTitle}.pdf`);
+                pdf.save(`reporte_casp_${currentChecklistType}_${safeTitle}.pdf`);
 
             } catch (error) {
                 console.error("Error al generar el PDF:", error);
                 alert("Hubo un error al generar el PDF. Por favor, revisa la consola para más detalles.");
             } finally {
-                content.style.display = 'none'; // Ocultar de nuevo
-                loader.style.display = 'none'; // Ocultar loader
+                content.style.display = 'none'; 
+                loader.style.display = 'none'; 
             }
         }
 
-        // Iniciar la aplicación
+        // --- INICIAR LA APLICACIÓN ---
         document.addEventListener('DOMContentLoaded', () => {
-            renderizarPreguntas();
-            agregarListenersGenerales();
+            // Listeners para los botones de selección
+            document.querySelectorAll('.checklist-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const tipo = button.dataset.tipo;
+                    const titulo = allChecklists[tipo].titulo;
+                    iniciarApp(tipo, titulo);
+                });
+            });
+
+            // Listener para el botón de volver
+            document.getElementById('btn-volver').addEventListener('click', volverASeleccion);
+            
+            // Listener para el botón de PDF
             document.getElementById('generar-pdf').addEventListener('click', generarPDF);
         });
 
     </script>
 </body>
 </html>
-
